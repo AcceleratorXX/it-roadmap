@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Шлях у веброзробку</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: креслярський аркуш — ліва колонка з етапами (як специфікація), справа етапи з розмірними мітками тижнів */
+:root{
+  --bg:#f1f4f3; --paper:#ffffff; --fg:#16201d; --muted:#5b6a65; --line:#d3dcd8;
+  --accent:#1d5e86; --accent-soft:#e1edf4; --done:#2f7d4f; --done-soft:#e3f1e8; --warn:#9a6a00;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Golos Text","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101614; --paper:#171f1c; --fg:#e4ece9; --muted:#93a39d; --line:#2a3632;
+  --accent:#6fb4dd; --accent-soft:#1b2d38; --done:#6cc792; --done-soft:#17291f; --warn:#e0b04a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101614; --paper:#171f1c; --fg:#e4ece9; --muted:#93a39d; --line:#2a3632;
+  --accent:#6fb4dd; --accent-soft:#1b2d38; --done:#6cc792; --done-soft:#17291f; --warn:#e0b04a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:24px 64px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin-inline:auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}}
+
+header.top{max-width:1120px;margin:0 auto 28px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,4.4vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+.lead{max-width:66ch;color:var(--muted);margin:0}
+
+/* summary panel */
+aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:16px}
+@media (max-width:860px){aside{position:static}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;gap:12px}
+.big{font-family:var(--f-display);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:14px;font-family:var(--f-mono);color:var(--muted);font-weight:400}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--done);width:0;transition:width .3s}
+.next{font-size:14px}
+.next b{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.sync{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+nav.toc{display:grid;gap:2px}
+nav.toc a{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border-radius:4px;text-decoration:none;color:var(--fg);font-size:14px}
+nav.toc a:hover{background:var(--accent-soft)}
+nav.toc a.cur{background:var(--accent-soft);font-weight:600}
+nav.toc .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+nav.toc .c{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+nav.toc a.full .c{color:var(--done)}
+@media (max-width:860px){nav.toc{display:none}}
+
+/* rules */
+.rules{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+
+/* phases */
+main{display:grid;gap:28px;min-width:0}
+section.phase{background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden;scroll-margin-top:16px}
+.ph-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.ph-num{font-family:var(--f-display);font-size:28px;font-weight:700;color:var(--accent);line-height:1}
+.ph-head h2{font-family:var(--f-display);font-weight:500;font-size:18px;margin:0;line-height:1.25;text-wrap:balance}
+.dim{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dim::before,.dim::after{content:"";width:14px;height:9px;border:solid var(--muted);border-width:0 0 0 1px;background:linear-gradient(var(--muted),var(--muted)) center/100% 1px no-repeat}
+.dim::after{border-width:0 1px 0 0}
+.ph-count{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+section.phase.full .ph-count{color:var(--done);font-weight:600}
+.ph-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:0}
+@media (max-width:720px){.ph-body{grid-template-columns:minmax(0,1fr)}}
+.col{padding:16px 18px;display:grid;gap:14px;align-content:start;min-width:0}
+.col+.col{border-left:1px solid var(--line)}
+@media (max-width:720px){.col+.col{border-left:0;border-top:1px solid var(--line)}}
+h3{font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0;font-weight:600}
+.why{margin:0;font-size:14px}
+.topics{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.topics li{font-size:13px;padding:2px 8px;border:1px solid var(--line);border-radius:3px}
+.res{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.res li{display:grid;gap:1px;font-size:14px}
+.res a{font-weight:600;text-decoration:none}
+.res a:hover{text-decoration:underline}
+.res span{color:var(--muted);font-size:13px}
+.tag{font-family:var(--f-mono);font-size:10px;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:1px;background:var(--accent-soft);color:var(--accent);font-weight:600;letter-spacing:.04em}
+
+.tasks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.task{border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:grid;gap:6px}
+.task.done{background:var(--done-soft);border-color:transparent}
+.t-row{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start}
+.t-row input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--done);cursor:pointer}
+.t-row label{cursor:pointer;font-size:14px}
+.task.done .t-row label{color:var(--muted)}
+.noai{font-family:var(--f-mono);font-size:10px;padding:1px 5px;border-radius:3px;border:1px solid var(--warn);color:var(--warn);margin-left:6px;white-space:nowrap;vertical-align:1px}
+.task details{margin-left:30px}
+.task summary{font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--f-mono)}
+.task summary.has{color:var(--accent)}
+.task textarea{width:100%;min-height:56px;margin-top:6px;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);resize:vertical}
+
+/* today / journal */
+.today{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px;display:grid;gap:18px}
+.today-top{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{display:grid;gap:2px}
+.stat .v{font-family:var(--f-display);font-size:26px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .k{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.grid28{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;max-width:420px}
+.grid28 i{aspect-ratio:1;border-radius:2px;background:var(--line);display:block}
+.grid28 i[data-l="1"]{background:color-mix(in srgb,var(--done) 35%,var(--line))}
+.grid28 i[data-l="2"]{background:color-mix(in srgb,var(--done) 65%,var(--line))}
+.grid28 i[data-l="3"]{background:var(--done)}
+.grid28 i.today-cell{outline:1.5px solid var(--accent);outline-offset:1px}
+.legend{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.today-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px}
+@media (max-width:720px){.today-cols{grid-template-columns:minmax(0,1fr)}}
+.timer{display:grid;gap:10px;align-content:start}
+.clock{font-family:var(--f-mono);font-size:40px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:14px;font-weight:600;padding:8px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--paper);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.del{border:0;background:transparent;color:var(--muted);padding:2px 6px;font-weight:400}
+button:disabled{opacity:.45;cursor:default}
+form.log{display:grid;grid-template-columns:auto 90px minmax(0,1fr) auto;gap:8px;align-items:end}
+@media (max-width:560px){form.log{grid-template-columns:1fr 1fr}form.log .wide{grid-column:1/-1}}
+form.log label{display:grid;gap:3px;font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;min-width:0}
+form.log input{font:inherit;font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);width:100%;min-width:0}
+.entries{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.entries li{display:grid;grid-template-columns:72px 56px minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:14px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.entries .d,.entries .m{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.entries .x{overflow-wrap:anywhere}
+.empty{color:var(--muted);font-size:14px;margin:0}
+
+/* quiz */
+.quiz{border-top:1px solid var(--line);padding:14px 18px;display:grid;gap:8px}
+.quiz-h{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.q{border:1px solid var(--line);border-radius:4px;padding:8px 10px}
+.q summary{cursor:pointer;font-size:14px;font-weight:500;display:flex;gap:8px;align-items:baseline}
+.q summary::marker{color:var(--muted)}
+.q.known{border-color:transparent;background:var(--accent-soft)}
+.q .ans{font-size:14px;margin:8px 0 6px;color:var(--fg)}
+.q .k{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}
+.q .k input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+.qmark{font-family:var(--f-mono);font-size:11px;color:var(--accent);margin-left:auto;white-space:nowrap}
+
+footer{max-width:1120px;margin:32px auto 0;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+</style>
+
+<header class="top">
+  <div class="eyebrow">Від конструктора меблів до full-stack розробника · 12–18 місяців</div>
+  <h1>Шлях у веброзробку</h1>
+  <p class="lead">Дев’ять етапів від нуля до першої роботи: TypeScript, React, Node.js, а потім 3D у браузері та ШІ. Завдання побудовані на тому, що ти вже знаєш: корпуси, розкрій, фурнітура, замовлення.</p>
+</header>
+
+<div class="wrap">
+  <aside>
+    <div class="panel">
+      <div class="big" id="pct">0%<small> виконано</small></div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="next" id="next"></div>
+      <div class="sync" id="sync">Прогрес зберігається в цьому браузері</div>
+      <div class="btns"><button type="button" class="ghost" id="exp">Скопіювати прогрес</button></div>
+      <details id="imp"><summary class="sync" style="cursor:pointer">Перенести з іншого браузера</summary>
+        <textarea id="imp-text" style="width:100%;min-height:70px;margin-top:6px;font:12px var(--f-mono);padding:6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)" placeholder="Встав сюди скопійований прогрес"></textarea>
+        <button type="button" id="imp-go" style="margin-top:6px">Завантажити</button>
+      </details>
+    </div>
+    <nav class="toc" id="toc" aria-label="Етапи"></nav>
+    <div class="panel">
+      <h3>Правила</h3>
+      <ol class="rules">
+        <li>1,5 години щодня. Регулярність важливіша за тривалість.</li>
+        <li>Завдання з позначкою «без ШІ» пиши сам. Потім можна попросити Claude перевірити.</li>
+        <li>Код від ШІ можна брати, лише якщо можеш пояснити кожен рядок.</li>
+        <li>Кожна тема закінчується проєктом на GitHub.</li>
+        <li>Англійська щодня по 20 хвилин.</li>
+        <li>Посилання на роботу клади в нотатку до завдання. Щоб Claude перевірив прогрес, натисни «Скопіювати прогрес» і встав у чат.</li>
+      </ol>
+    </div>
+  </aside>
+
+  <main>
+    <section class="today" id="journal" aria-label="Щоденник навчання">
+      <div class="today-top">
+        <div class="stat"><span class="v" id="st-streak">0</span><span class="k">днів поспіль</span></div>
+        <div class="stat"><span class="v" id="st-week">0 год</span><span class="k">цей тиждень · ціль 10</span></div>
+        <div class="stat"><span class="v" id="st-total">0 год</span><span class="k">усього</span></div>
+      </div>
+      <div style="display:grid;gap:6px">
+        <h3>Останні 4 тижні</h3>
+        <div class="grid28" id="grid28"></div>
+        <div class="legend">Сіре: не займався · світло-зелене: до 45 хв · зелене: 45–90 хв · темне: понад 90 хв</div>
+      </div>
+      <div class="today-cols">
+        <div class="timer">
+          <h3>Таймер</h3>
+          <div class="clock" id="clock">00:00</div>
+          <div class="btns">
+            <button type="button" id="t-start">Почати</button>
+            <button type="button" class="ghost" id="t-stop" disabled>Зупинити й записати</button>
+          </div>
+          <div class="legend" id="t-hint">Після зупинки час додасться в щоденник за сьогодні.</div>
+        </div>
+        <div style="display:grid;gap:10px;min-width:0">
+          <h3>Записати заняття</h3>
+          <form class="log" id="logform">
+            <label>Дата<input type="date" id="lg-date" required></label>
+            <label>Хвилин<input type="number" id="lg-min" min="5" max="600" step="5" value="60" required></label>
+            <label class="wide">Що робив<input type="text" id="lg-text" maxlength="200" placeholder="Напр.: javascript.info, розділ про масиви"></label>
+            <button type="submit" class="wide">Додати</button>
+          </form>
+          <ul class="entries" id="entries"></ul>
+        </div>
+      </div>
+    </section>
+    <div id="phases" style="display:grid;gap:28px"></div>
+  </main>
+</div>
+
+<footer>Тижні вказані з розрахунку 10 годин на тиждень. Якщо виходить більше, проходь швидше.</footer>
+
+<script>
+const PHASES = [
+ {id:"start", title:"Старт: інструменти й звички", weeks:"тиждень 1",
+  why:"Налаштувати робоче місце й розклад, щоб далі вчитися щодня без пауз.",
+  topics:["Як працює браузер і сервер","VS Code","Термінал","Git і GitHub","Англійська"],
+  res:[
+   {t:"CS50 українською", u:"https://prometheus.org.ua/cs50/", d:"Гарвардський курс основ програмування від Prometheus. Перші 2–3 лекції для загального розуміння.", tag:"UA"},
+   {t:"roadmap.sh: Full Stack", u:"https://roadmap.sh/full-stack", d:"Карта того, що вчить full-stack розробник."},
+   {t:"Learn Git Branching", u:"https://learngitbranching.js.org/?locale=uk", d:"Інтерактивний тренажер Git.", tag:"UA"},
+   {t:"BBC Learning English", u:"https://www.bbc.co.uk/learningenglish", d:"Безкоштовні короткі уроки на кожен день."}],
+  tasks:[
+   {id:"s1", t:"Створити профіль на GitHub з фото й коротким описом англійською"},
+   {id:"s2", t:"Пройти перші два розділи Learn Git Branching"},
+   {id:"s3", t:"Записати в нотатку свій розклад: дні й години навчання"},
+   {id:"s4", t:"Сім днів поспіль займатися англійською по 20 хвилин"}]},
+
+ {id:"html", title:"HTML і CSS", weeks:"тижні 2–4",
+  why:"Основа всього, що видно в браузері. Без неї React не матиме сенсу.",
+  topics:["Семантичний HTML","Flexbox","Grid","Адаптивність","Форми"],
+  res:[
+   {t:"MDN: навчання веброзробці", u:"https://developer.mozilla.org/uk/docs/Learn_web_development", d:"Головний довідник веброзробника. Частково перекладений.", tag:"UA"},
+   {t:"web.dev: Learn CSS", u:"https://web.dev/learn/css", d:"Сучасний CSS від Google, по темах."},
+   {t:"Flexbox Froggy", u:"https://flexboxfroggy.com/#uk", d:"Гра на Flexbox.", tag:"UA"},
+   {t:"Grid Garden", u:"https://cssgridgarden.com/#uk", d:"Гра на CSS Grid.", tag:"UA"}],
+  tasks:[
+   {id:"h1", t:"Пройти Flexbox Froggy і Grid Garden до кінця"},
+   {id:"h2", t:"Зверстати сторінку «Кухні на замовлення»: шапка, галерея робіт, ціни, контакти", noai:true},
+   {id:"h3", t:"Зробити, щоб сторінка нормально виглядала на телефоні шириною 375 px", noai:true},
+   {id:"h4", t:"Опублікувати її на GitHub Pages і вставити посилання в нотатку"}]},
+
+ {id:"js", title:"JavaScript", weeks:"тижні 5–12",
+  why:"Найважливіший етап. Від того, наскільки добре ти знаєш JS, залежить рівень зарплати.",
+  topics:["Змінні й типи","Функції","Масиви й об’єкти","Замикання","async/await","fetch","DOM","Цикл подій"],
+  res:[
+   {t:"javascript.info українською", u:"https://uk.javascript.info/", d:"Найкращий підручник JS. Проходь із задачами після кожного розділу.", tag:"UA"},
+   {t:"Full Stack Open", u:"https://fullstackopen.com/uk/", d:"Безкоштовний курс Гельсінського університету. Частини 0–1.", tag:"UA"},
+   {t:"Exercism: JavaScript", u:"https://exercism.org/tracks/javascript", d:"Задачі з розбором від менторів."},
+   {t:"Codewars", u:"https://www.codewars.com/", d:"Короткі задачі для щоденної практики."}],
+  tasks:[
+   {id:"j1", t:"Пройти частини 1 і 2 javascript.info разом із задачами"},
+   {id:"j2", t:"Розв’язати 30 задач на Codewars рівня 8–7 kyu"},
+   {id:"j3", t:"Калькулятор корпусу: ширина, висота, глибина й товщина ДСП дають список деталей з розмірами", noai:true},
+   {id:"j4", t:"Розкрій: розкласти деталі на лист 2800×2070 мм простим алгоритмом і порахувати кількість листів", noai:true},
+   {id:"j5", t:"Каталог фурнітури: фільтр за артикулом і виробником, сортування за ціною", noai:true},
+   {id:"j6", t:"Взяти курс долара з API НБУ через fetch і перерахувати вартість кухні в гривні"},
+   {id:"j7", t:"Своїми словами пояснити в нотатці, що таке замикання і цикл подій"}]},
+
+ {id:"ts", title:"Git і TypeScript", weeks:"тижні 13–15",
+  why:"TypeScript зараз вимагають у більшості вакансій. Git потрібен у командній роботі щодня.",
+  topics:["Типи й інтерфейси","Generics","Гілки","Pull request","Конфлікти"],
+  res:[
+   {t:"TypeScript Handbook", u:"https://www.typescriptlang.org/docs/handbook/intro.html", d:"Офіційна документація."},
+   {t:"Total TypeScript: Beginners", u:"https://www.totaltypescript.com/tutorials/beginners-typescript", d:"Безкоштовні інтерактивні вправи."},
+   {t:"Книга Pro Git", u:"https://git-scm.com/book/uk/v2", d:"Розділи 1–3 обов’язково.", tag:"UA"}],
+  tasks:[
+   {id:"t1", t:"Переписати калькулятор корпусу на TypeScript з типами Panel і Cabinet", noai:true},
+   {id:"t2", t:"Зробити зміну через окрему гілку, pull request і merge"},
+   {id:"t3", t:"Навмисно створити конфлікт у Git і розв’язати його"},
+   {id:"t4", t:"Прочитати 5 файлів у b3dviewer і описати в нотатці, що в них відбувається"}]},
+
+ {id:"react", title:"React", weeks:"тижні 16–22",
+  why:"Найпопулярніша бібліотека для інтерфейсів. На ній зроблено і твій сайт.",
+  topics:["Компоненти","Props і state","Хуки","Форми","Списки","Робота з API"],
+  res:[
+   {t:"react.dev: Learn", u:"https://react.dev/learn", d:"Офіційний підручник, пройти повністю."},
+   {t:"Full Stack Open, частини 1–2", u:"https://fullstackopen.com/uk/part1", d:"React на практиці.", tag:"UA"},
+   {t:"Vercel", u:"https://vercel.com/", d:"Безкоштовний хостинг для React і Next.js."}],
+  tasks:[
+   {id:"r1", t:"Пройти весь розділ Learn на react.dev"},
+   {id:"r2", t:"Конфігуратор шафи: розміри, полиці, двері, живий список деталей і ціна", noai:true},
+   {id:"r3", t:"Перевірка введення: ширина 300–1200 мм, зрозумілі повідомлення про помилки"},
+   {id:"r4", t:"Опублікувати конфігуратор на Vercel і вставити посилання"}]},
+
+ {id:"back", title:"Бекенд: Node.js і бази даних", weeks:"тижні 23–30",
+  why:"З бекендом ти стаєш full-stack розробником, а за таких платять більше.",
+  topics:["Node.js","REST API","PostgreSQL","MongoDB","Авторизація","Тести"],
+  res:[
+   {t:"Node.js Learn", u:"https://nodejs.org/en/learn", d:"Офіційні матеріали."},
+   {t:"Full Stack Open, частини 3–4", u:"https://fullstackopen.com/uk/part3", d:"Сервер, база, тести, авторизація.", tag:"UA"},
+   {t:"PostgreSQL Tutorial", u:"https://neon.com/postgresql/tutorial", d:"SQL від простого до JOIN-ів."},
+   {t:"Vitest", u:"https://vitest.dev/guide/", d:"Тести для JS і TS."}],
+  tasks:[
+   {id:"b1", t:"API замовлень: створити замовлення, отримати список, змінити статус", noai:true},
+   {id:"b2", t:"База в Postgres: клієнти, замовлення, позиції. Написати запити з JOIN"},
+   {id:"b3", t:"Логін і ролі: менеджер бачить усе, монтажник бачить лише свої об’єкти"},
+   {id:"b4", t:"Написати тести на API з Vitest"}]},
+
+ {id:"next", title:"Next.js і повноцінний продукт", weeks:"тижні 31–40",
+  why:"Тут ти збираєш усе разом у проєкт, який не соромно показати на співбесіді.",
+  topics:["Next.js App Router","Серверні компоненти","Payload CMS","Деплой","README"],
+  res:[
+   {t:"Next.js Learn", u:"https://nextjs.org/learn", d:"Офіційний курс, будуєш дашборд від початку до кінця."},
+   {t:"Документація Payload", u:"https://payloadcms.com/docs", d:"CMS, на якій працює b3dviewer."},
+   {t:"Full Stack Open, частина 7+", u:"https://fullstackopen.com/uk/part7", d:"Архітектура та продвинуті теми.", tag:"UA"}],
+  tasks:[
+   {id:"n1", t:"Пройти курс Next.js Learn повністю"},
+   {id:"n2", t:"Міні-CRM для цеху: клієнти, замовлення, статуси, файли креслень", noai:true},
+   {id:"n3", t:"Самому зробити 3 невеликі задачі в b3dviewer (Claude лише перевіряє)"},
+   {id:"n4", t:"Написати англійською README зі скріншотами для кожного проєкту"}]},
+
+ {id:"spec", title:"Спеціалізація: 3D у браузері та ШІ", weeks:"тижні 41–52",
+  why:"Тут ти виділяєшся серед інших. Конструкторів, які пишуть three.js, на ринку одиниці.",
+  topics:["three.js","React Three Fiber","Raycasting","Розмірні лінії","Claude API"],
+  res:[
+   {t:"three.js Manual", u:"https://threejs.org/manual/", d:"Офіційний посібник."},
+   {t:"Discover three.js", u:"https://discoverthreejs.com/", d:"Безкоштовна книга з нуля."},
+   {t:"React Three Fiber", u:"https://r3f.docs.pmnd.rs/", d:"three.js у React."},
+   {t:"Документація Claude API", u:"https://platform.claude.com/docs", d:"Як вбудувати ШІ у свій продукт."}],
+  tasks:[
+   {id:"x1", t:"3D-сцена: корпус з панелей за розмірами з твого калькулятора", noai:true},
+   {id:"x2", t:"Вибір деталі кліком мишки та її підсвітка"},
+   {id:"x3", t:"Розмірні лінії в 3D, як на кресленні"},
+   {id:"x4", t:"ШІ-помічник: фраза «шафа 800 на 2000, 3 полиці» перетворюється на параметри конфігуратора"}]},
+
+ {id:"job", title:"Пошук роботи", weeks:"місяці 12–18",
+  why:"Перша робота найважча. Далі зарплата росте з досвідом.",
+  topics:["Резюме","Djinni","LinkedIn","Співбесіди","Upwork"],
+  res:[
+   {t:"Djinni", u:"https://djinni.co/", d:"Головний сайт IT-вакансій в Україні."},
+   {t:"DOU: зарплати", u:"https://jobs.dou.ua/salaries/", d:"Реальні зарплати за посадою та досвідом.", tag:"UA"},
+   {t:"Frontend Interview Handbook", u:"https://www.frontendinterviewhandbook.com/", d:"Питання й відповіді для співбесід."},
+   {t:"Upwork", u:"https://www.upwork.com/", d:"Фриланс від іноземних клієнтів."}],
+  tasks:[
+   {id:"w1", t:"Резюме англійською на одну сторінку з трьома проєктами"},
+   {id:"w2", t:"Заповнити профілі на Djinni і LinkedIn"},
+   {id:"w3", t:"Відгукнутися на 20 вакансій і вести список у нотатці"},
+   {id:"w4", t:"Пройти з Claude 3 пробні співбесіди: технічну та англійською"},
+   {id:"w5", t:"Отримати перше оплачене замовлення на Upwork, навіть невелике"}]}
+];
+
+const QUIZ = {
+ start:[
+  ["Що відбувається, коли вводиш адресу сайту в браузері?","DNS перетворює адресу на IP сервера. Браузер надсилає HTTP-запит, сервер повертає HTML. Потім браузер довантажує CSS, JS, картинки й малює сторінку."],
+  ["Чим commit відрізняється від push?","Commit зберігає зміни в історії на твоєму комп’ютері. Push відправляє ці коміти на GitHub."],
+  ["Навіщо в Git гілки?","Щоб робити зміну окремо, не ламаючи main, і злити її, коли вона готова та перевірена."]],
+ html:[
+  ["Чим flex відрізняється від grid?","Flex розкладає елементи в один напрям: ряд або колонку. Grid будує сітку з рядками й колонками одночасно."],
+  ["Що таке box model?","Кожен елемент складається з контенту, padding, border і margin. З box-sizing: border-box padding і border входять у задану ширину."],
+  ["Що таке семантичні теги і навіщо вони?","header, nav, main, article, footer описують зміст блоку. Це допомагає пошуковикам, програмам для незрячих і тим, хто читає код."],
+  ["Як працює media query?","Стилі всередині @media (max-width: 600px) застосовуються лише тоді, коли умова виконується. Так роблять адаптивність."]],
+ js:[
+  ["Чим відрізняються let, const і var?","const не можна перепризначити, let можна. Обидва видно лише в блоці { }. var видно в усій функції, його в новому коді не використовують."],
+  ["Що таке замикання?","Функція пам’ятає змінні з місця, де її створили, навіть після того, як зовнішня функція завершилась."],
+  ["Що виведе console.log(0.1 + 0.2 === 0.3)?","false. Дробові числа зберігаються у двійковому вигляді неточно. Гроші рахують у копійках, а міліметри округлюють."],
+  ["Чим map відрізняється від forEach?","map повертає новий масив із результатами. forEach просто проходить по елементах і нічого не повертає."],
+  ["Що таке Promise і async/await?","Promise — обіцянка результату в майбутньому, наприклад відповіді сервера. await чекає на нього, не блокуючи сторінку."]],
+ ts:[
+  ["Чим interface відрізняється від type?","Обидва описують форму об’єкта. interface можна розширювати й доповнювати, а type вміє об’єднання (A | B) і складніші конструкції."],
+  ["Що таке generic?","Тип-параметр. function first<T>(arr: T[]): T працює з масивом будь-якого типу і повертає елемент того самого типу."],
+  ["Чому уникають any?","any вимикає перевірку типів. Краще unknown з явною перевіркою."],
+  ["Що таке merge conflict?","Дві гілки змінили той самий рядок. Git не знає, яку версію лишити, і просить вибрати вручну."]],
+ react:[
+  ["Чим state відрізняється від props?","State — внутрішні дані компонента, які він сам змінює. Props передає батьківський компонент, і їх можна лише читати."],
+  ["Навіщо key у списках?","Щоб React розумів, який елемент є який, коли список змінюється. Індекс як key погано працює, якщо елементи додаються чи видаляються."],
+  ["Коли потрібен useEffect?","Для зв’язку із зовнішнім світом: запити, підписки, таймери. Для обчислень із state він не потрібен."],
+  ["Чому не можна робити items.push(x) зі state?","React не помітить зміни, бо масив той самий. Треба створити новий: setItems([...items, x])."]],
+ back:[
+  ["Що роблять GET, POST, PATCH, DELETE?","Отримати, створити, частково змінити, видалити."],
+  ["Що таке JOIN у SQL?","Об’єднання рядків двох таблиць за спільним полем, наприклад замовлення й клієнт за client_id."],
+  ["Як зберігати паролі?","Тільки хеш через bcrypt або argon2. Ніколи не відкритим текстом."],
+  ["Чим 401 відрізняється від 403?","401: користувач не увійшов. 403: увійшов, але не має прав."]],
+ next:[
+  ["Чим серверний компонент відрізняється від клієнтського?","Серверний виконується на сервері й не додає JS у браузер. Клієнтський ('use client') потрібен для кнопок, хуків і всього інтерактивного."],
+  ["Що таке SSR і статична генерація?","SSR рендерить сторінку на кожен запит. Статична генерація робить це заздалегідь, під час збірки."],
+  ["Де зберігати секретні ключі?","У змінних середовища на сервері (.env). Ніколи в коді, який потрапляє в браузер."],
+  ["Що робить Payload CMS?","Створює адмінку, колекції та API з конфігурації на TypeScript."]],
+ spec:[
+  ["Що потрібно для будь-якої сцени three.js?","Сцена, камера, рендерер. Плюс об’єкти й світло."],
+  ["З чого складається mesh?","Geometry (форма) і material (вигляд поверхні)."],
+  ["Що таке raycasting?","Промінь від камери через точку курсора. Перший об’єкт, у який він влучив, і є тим, на який клікнули."],
+  ["Що таке токен у мовній моделі?","Шматочок тексту. За токени платиш, і ними обмежений обсяг, який модель бачить за раз."]],
+ job:[
+  ["Розкажи про себе англійською за хвилину","Ім’я, досвід конструктора меблів, що вивчив, два найкращі проєкти, яку роботу шукаєш. Потренуйся вголос, запиши себе на телефон."],
+  ["Який твій найскладніший проєкт?","Підготуй історію: яка була задача, що саме ти зробив, який результат. Добре підходить 3D-конфігуратор або CRM."],
+  ["Чому переходиш з меблів в ІТ?","Говори позитивно: почав автоматизувати свою роботу, сподобалось, маєш знання галузі, яких немає в інших розробників."],
+  ["Скільки хочеш отримувати?","Назви діапазон за даними DOU для свого рівня. Не занижуй."]]
+};
+
+const ALL = PHASES.flatMap(p => p.tasks.map(t => ({...t, phase:p})));
+let state = {done:{}, notes:{}, known:{}, log:[]};
+const LS_KEY = "it-shlyakh-v1";
+function norm(d){ return {done:{...(d.done||{})}, notes:{...(d.notes||{})}, known:{...(d.known||{})}, log:Array.isArray(d.log)?d.log.slice():[]}; }
+try { const s = JSON.parse(localStorage.getItem(LS_KEY) || "null"); if (s && s.done) state = norm(s); } catch(e) {}
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function build(){
+  $("#phases").innerHTML = PHASES.map((p,i) => `
+   <section class="phase" id="${p.id}">
+    <div class="ph-head">
+      <div class="ph-num">${i+1}</div>
+      <div><h2>${esc(p.title)}</h2><div class="dim">${esc(p.weeks)}</div></div>
+      <div class="ph-count" data-count="${p.id}"></div>
+    </div>
+    <div class="ph-body">
+      <div class="col">
+        <p class="why">${esc(p.why)}</p>
+        <div><h3>Теми</h3></div>
+        <ul class="topics">${p.topics.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>
+        <h3>Ресурси</h3>
+        <ul class="res">${p.res.map(r=>`<li><a href="${r.u}" target="_blank" rel="noopener">${esc(r.t)}</a><span>${esc(r.d)}${r.tag?` <span class="tag">${r.tag}</span>`:""}</span></li>`).join("")}</ul>
+      </div>
+      <div class="col">
+        <h3>Завдання</h3>
+        <ul class="tasks">${p.tasks.map(t=>`
+          <li class="task" data-task="${t.id}">
+            <div class="t-row">
+              <input type="checkbox" id="cb-${t.id}">
+              <label for="cb-${t.id}">${esc(t.t)}${t.noai?'<span class="noai">без ШІ</span>':""}</label>
+            </div>
+            <details><summary>Нотатка / посилання</summary>
+              <textarea id="nt-${t.id}" placeholder="Посилання на GitHub, що вийшло, що було складно"></textarea>
+            </details>
+          </li>`).join("")}</ul>
+      </div>
+    </div>
+    <div class="quiz">
+      <div class="quiz-h"><h3>Самоперевірка</h3><span class="ph-count" data-qcount="${p.id}"></span></div>
+      ${(QUIZ[p.id]||[]).map((q,j)=>{ const id=p.id+"-q"+j; return `
+      <details class="q" data-q="${id}">
+        <summary>${esc(q[0])}<span class="qmark" data-qmark="${id}"></span></summary>
+        <p class="ans">${esc(q[1])}</p>
+        <label class="k"><input type="checkbox" id="qk-${id}"> Можу пояснити це своїми словами</label>
+      </details>`; }).join("")}
+    </div>
+   </section>`).join("");
+  $("#toc").innerHTML = PHASES.map((p,i)=>`<a href="#${p.id}" data-toc="${p.id}"><span class="n">${String(i+1).padStart(2,"0")}</span><span>${esc(p.title)}</span><span class="c"></span></a>`).join("");
+
+  ALL.forEach(t => {
+    $("#cb-"+t.id).addEventListener("change", e => {
+      if (e.target.checked) state.done[t.id] = true; else delete state.done[t.id];
+      paint(); save();
+    });
+    $("#nt-"+t.id).addEventListener("input", e => {
+      const v = e.target.value;
+      if (v.trim()) state.notes[t.id] = v; else delete state.notes[t.id];
+      paintNoteFlag(t.id); save();
+    });
+  });
+  PHASES.forEach(p => (QUIZ[p.id]||[]).forEach((q,j) => {
+    const id = p.id+"-q"+j;
+    $("#qk-"+id).addEventListener("change", e => {
+      if (e.target.checked) state.known[id] = true; else delete state.known[id];
+      paint(); save();
+    });
+  }));
+
+  $("#lg-date").value = dayKey(new Date());
+  $("#logform").addEventListener("submit", e => {
+    e.preventDefault();
+    const m = Math.round(Number($("#lg-min").value));
+    const d = $("#lg-date").value;
+    if (!d || !(m >= 1 && m <= 600)) return;
+    addLog(d, m, $("#lg-text").value.trim());
+    $("#lg-text").value = "";
+  });
+  $("#entries").addEventListener("click", e => {
+    const b = e.target.closest("button[data-del]");
+    if (!b) return;
+    state.log.splice(Number(b.dataset.del), 1);
+    paint(); save();
+  });
+  $("#t-start").addEventListener("click", timerToggle);
+  $("#t-stop").addEventListener("click", timerStop);
+}
+
+/* ---- journal ---- */
+function dayKey(dt){ const z=n=>String(n).padStart(2,"0"); return `${dt.getFullYear()}-${z(dt.getMonth()+1)}-${z(dt.getDate())}`; }
+function addLog(d, m, t){
+  state.log.push({d, m, t: (t||"").slice(0,200)});
+  state.log.sort((a,b)=> a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
+  if (state.log.length > 3000) state.log = state.log.slice(-3000);
+  paint(); save();
+}
+function minutesByDay(){ const m = {}; state.log.forEach(e => m[e.d] = (m[e.d]||0) + (Number(e.m)||0)); return m; }
+const fmtH = min => { const h = min/60; return (h >= 10 ? Math.round(h) : Math.round(h*10)/10).toString().replace(".", ",") + " год"; };
+function paintJournal(){
+  const byDay = minutesByDay(), now = new Date();
+  // streak: consecutive days ending today (or yesterday, if today is not logged yet)
+  let streak = 0, cur = new Date(now);
+  if (!byDay[dayKey(cur)]) cur.setDate(cur.getDate()-1);
+  while (byDay[dayKey(cur)]) { streak++; cur.setDate(cur.getDate()-1); }
+  $("#st-streak").textContent = streak;
+  const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay()+6)%7));
+  let week = 0; for (let i=0;i<7;i++){ const d=new Date(monday); d.setDate(monday.getDate()+i); week += byDay[dayKey(d)]||0; }
+  $("#st-week").textContent = fmtH(week);
+  $("#st-total").textContent = fmtH(Object.values(byDay).reduce((a,b)=>a+b,0));
+  // 28-day grid, oldest first
+  const cells = [];
+  for (let i=27;i>=0;i--){
+    const d = new Date(now); d.setDate(now.getDate()-i);
+    const k = dayKey(d), m = byDay[k]||0, l = m===0?0:m<45?1:m<=90?2:3;
+    cells.push(`<i data-l="${l}" class="${i===0?"today-cell":""}" title="${k}: ${m} хв"></i>`);
+  }
+  $("#grid28").innerHTML = cells.join("");
+  const last = state.log.map((e,i)=>({...e,i})).slice(-7).reverse();
+  $("#entries").innerHTML = last.length
+    ? last.map(e=>`<li><span class="d">${esc(e.d.slice(8)+"."+e.d.slice(5,7))}</span><span class="m">${Number(e.m)||0} хв</span><span class="x">${esc(e.t||"—")}</span><button type="button" class="del" data-del="${e.i}" aria-label="Видалити запис">✕</button></li>`).join("")
+    : `<p class="empty">Записів ще немає. Запусти таймер або додай перше заняття.</p>`;
+}
+
+/* ---- timer ---- */
+let tStart = null, tAcc = 0, tTick = null;
+const T_KEY = "it-shlyakh-timer";
+try { const t = JSON.parse(localStorage.getItem(T_KEY)||"null"); if (t) { tAcc = t.acc||0; tStart = t.start||null; } } catch(e) {}
+function tElapsed(){ return tAcc + (tStart ? Date.now()-tStart : 0); }
+function tPersist(){ try { localStorage.setItem(T_KEY, JSON.stringify({acc:tAcc, start:tStart})); } catch(e) {} }
+function tRender(){
+  const s = Math.floor(tElapsed()/1000), h = Math.floor(s/3600), m = Math.floor(s%3600/60), z = n=>String(n).padStart(2,"0");
+  $("#clock").textContent = h ? `${h}:${z(m)}:${z(s%60)}` : `${z(m)}:${z(s%60)}`;
+  $("#t-start").textContent = tStart ? "Пауза" : (tAcc ? "Продовжити" : "Почати");
+  $("#t-stop").disabled = tElapsed() < 1000;
+}
+function timerToggle(){
+  if (tStart) { tAcc += Date.now()-tStart; tStart = null; clearInterval(tTick); }
+  else { tStart = Date.now(); tTick = setInterval(tRender, 1000); }
+  tPersist(); tRender();
+}
+function timerStop(){
+  const min = Math.round(tElapsed()/60000);
+  clearInterval(tTick); tStart = null; tAcc = 0; tPersist(); tRender();
+  if (min >= 1) { addLog(dayKey(new Date()), min, "Таймер"); $("#t-hint").textContent = `Записано ${min} хв.`; }
+  else $("#t-hint").textContent = "Менше хвилини, нічого не записано.";
+}
+if (tStart) tTick = setInterval(tRender, 1000);
+
+function paintNoteFlag(id){
+  const s = document.querySelector(`[data-task="${id}"] summary`);
+  s.classList.toggle("has", !!state.notes[id]);
+  s.textContent = state.notes[id] ? "Нотатка ✓" : "Нотатка / посилання";
+}
+
+function paint(){
+  ALL.forEach(t => {
+    const li = document.querySelector(`[data-task="${t.id}"]`);
+    const d = !!state.done[t.id];
+    li.classList.toggle("done", d);
+    $("#cb-"+t.id).checked = d;
+    const ta = $("#nt-"+t.id);
+    if (document.activeElement !== ta) ta.value = state.notes[t.id] || "";
+    paintNoteFlag(t.id);
+  });
+  let cur = null;
+  PHASES.forEach(p => {
+    const n = p.tasks.filter(t=>state.done[t.id]).length, full = n === p.tasks.length;
+    const label = `${n} / ${p.tasks.length}`;
+    document.querySelector(`[data-count="${p.id}"]`).textContent = label;
+    $("#"+p.id).classList.toggle("full", full);
+    const a = document.querySelector(`[data-toc="${p.id}"]`);
+    a.querySelector(".c").textContent = label;
+    a.classList.toggle("full", full);
+    if (!full && !cur) cur = p;
+    a.classList.remove("cur");
+  });
+  if (cur) document.querySelector(`[data-toc="${cur.id}"]`).classList.add("cur");
+  PHASES.forEach(p => {
+    const qs = QUIZ[p.id]||[]; let k = 0;
+    qs.forEach((q,j) => {
+      const id = p.id+"-q"+j, on = !!state.known[id]; if (on) k++;
+      document.querySelector(`[data-q="${id}"]`).classList.toggle("known", on);
+      $("#qk-"+id).checked = on;
+      document.querySelector(`[data-qmark="${id}"]`).textContent = on ? "знаю" : "";
+    });
+    document.querySelector(`[data-qcount="${p.id}"]`).textContent = `${k} / ${qs.length}`;
+  });
+  paintJournal();
+  const done = ALL.filter(t=>state.done[t.id]).length, pct = Math.round(done/ALL.length*100);
+  $("#pct").innerHTML = `${pct}%<small> · ${done} з ${ALL.length}</small>`;
+  $("#bar").style.width = pct+"%";
+  const nx = ALL.find(t=>!state.done[t.id]);
+  $("#next").innerHTML = nx
+    ? `<b>Наступне · етап ${PHASES.indexOf(nx.phase)+1}</b><a href="#${nx.phase.id}">${esc(nx.t)}</a>`
+    : `<b>Готово</b>Усі етапи пройдено. Час шукати роботу на $5k.`;
+}
+
+/* ---- persistence: db (shared with Claude) with localStorage fallback ---- */
+let docRef = null, writing = false, again = false, timer = null;
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
+  if (!docRef) return;
+  clearTimeout(timer);
+  timer = setTimeout(flush, 700);
+}
+async function flush(){
+  if (writing) { again = true; return; }
+  writing = true;
+  try {
+    await docRef.set({done:{...state.done}, notes:{...state.notes}, known:{...state.known}, log:state.log.slice(), updatedAt:new Date().toISOString()});
+    $("#sync").textContent = "Збережено онлайн · Claude бачить прогрес";
+  } catch(e) {
+    $("#sync").textContent = e && e.code === "invalid_argument"
+      ? "Лише перегляд: зберігати прогрес може тільки власник"
+      : "Не вдалося зберегти онлайн. Прогрес лишився в цьому браузері";
+  }
+  writing = false;
+  if (again) { again = false; flush(); }
+}
+
+build(); paint(); tRender();
+
+/* ---- export / import (progress lives in this browser) ---- */
+$("#exp").addEventListener("click", async () => {
+  const txt = JSON.stringify(state);
+  try { await navigator.clipboard.writeText(txt); $("#sync").textContent = "Скопійовано. Встав у чат із Claude або в іншому браузері."; }
+  catch(e) { const ta = $("#imp-text"); ta.value = txt; $("#imp").open = true; ta.select(); $("#sync").textContent = "Не вдалося скопіювати автоматично. Текст виділено нижче, натисни Ctrl+C."; }
+});
+$("#imp-go").addEventListener("click", () => {
+  try {
+    const d = JSON.parse($("#imp-text").value);
+    if (!d || typeof d !== "object" || !d.done) throw 0;
+    state = norm(d); save(); paint();
+    $("#imp-text").value = ""; $("#imp").open = false;
+    $("#sync").textContent = "Прогрес завантажено.";
+  } catch(e) { $("#sync").textContent = "Це не схоже на скопійований прогрес. Встав текст повністю."; }
+});
+</script>
+
+</body>
+</html>
